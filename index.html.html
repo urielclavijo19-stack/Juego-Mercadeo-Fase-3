@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego - Formulación de Proyectos</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --primary: #3b82f6;
+            --accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --option-bg: #1e293b;
+            --option-hover: #334155;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 750px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        h2 { margin-top: 0; }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .badge {
+            background-color: #1e293b;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .badge span { color: var(--accent); }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0b0f19;
+            color: white;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: #0b0f19;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-secondary {
+            background-color: #334155;
+            color: white;
+            width: auto;
+        }
+
+        .nivel {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background-color: var(--option-bg);
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: var(--option-hover);
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: var(--correct);
+            color: #4ade80;
+        }
+
+        .option-btn.wrong {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--wrong);
+            color: #f87171;
+        }
+
+        .actions-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #1e293b;
+            padding-top: 20px;
+        }
+
+        .rules-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+            line-height: 1.3;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Pantalla de Registro -->
+    <div id="register-screen">
+        <h2>Registro de Estudiante</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Ingresa tus datos para comenzar el test de Formulación de Proyectos.</p>
+        <label>Nombre Completo:</label>
+        <input type="text" id="nombre-input" placeholder="Ej. Ana María Gómez">
+        
+        <label>Cédula o Documento de Identidad:</label>
+        <input type="text" id="cedula-input" placeholder="Ej. 1020304050">
+        
+        <button class="btn" id="btn-comenzar">Comenzar Juego</button>
+    </div>
+
+    <!-- Pantalla del Juego -->
+    <div id="game-screen" class="hidden">
+        <div class="header-info">
+            <div class="game-title">¿Quién quiere ser millonario? · Investigación</div>
+            <div class="stats">
+                <div class="badge">Puntos: <span id="score-display">0</span></div>
+                <div class="badge">Pregunta: <span id="current-q-display">1</span>/10</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="nivel" id="nivel-text">Nivel 1</div>
+            <div class="question-text" id="question-text">Cargando pregunta...</div>
+            
+            <div class="options-grid" id="options-container"></div>
+
+            <div class="actions-footer">
+                <button class="btn btn-secondary" id="btn-clave">Mostrar Clave (+7 pts)</button>
+                <button class="btn btn-secondary" id="btn-saltar">Saltar</button>
+            </div>
+        </div>
+
+        <div class="rules-info">
+            <strong>Reglas de puntaje:</strong> Acierto al primer intento = <strong>+10 pts</strong> · Acierto tras usar <em>Clave</em> = <strong>+7 pts</strong> · Acierto tras un fallo (sin clave) = <strong>+8 pts</strong>.
+        </div>
+    </div>
+
+    <!-- Pantalla de Resultados -->
+    <div id="results-screen" class="hidden" style="text-align: center;">
+        <h2>¡Juego Finalizado!</h2>
+        <p id="result-student-info" style="font-size: 1.1rem; color: var(--accent); margin-bottom: 10px;"></p>
+        <p style="font-size: 1.2rem;">Tu puntaje final es:</p>
+        <h1 id="final-score" style="font-size: 3rem; color: var(--correct); margin: 15px 0;">0 pts</h1>
+        <button class="btn" id="btn-reiniciar" style="margin-top: 20px;">Volver a Jugar</button>
+    </div>
+</div>
+
+<script>
+    const preguntas = [
+        {
+            nivel: "Fase 1: Análisis de Propuestas",
+            pregunta: "¿Cuál es el propósito fundamental de analizar las propuestas de investigación individuales antes de seleccionar la del grupo?",
+            opciones: [
+                "Descartar las ideas de los compañeros con menor participación.",
+                "Evaluar la viabilidad, pertinencia y valor académico de cada opción para elegir la mejor.",
+                "Unir todas las ideas en un solo proyecto sin importar si son contradictorias.",
+                "Elegir la propuesta más rápida de redactar sin importar su objetivo."
+            ],
+            correcta: 1
+        },
+        {
+            nivel: "Fase 1: Criterios de Selección",
+            pregunta: "Al momento de elegir la propuesta definitiva del grupo, ¿qué factor técnico es prioritario?",
+            opciones: [
+                "Que el tema cuente con fuentes de información y recursos accesibles.",
+                "Que el título sea sumamente largo y complejo.",
+                "Que no requiera ningún tipo de revisión bibliográfica.",
+                "Que sea un tema totalmente desconocido a nivel mundial."
+            ],
+            correcta: 0
+        },
+        {
+            nivel: "Fase 2: Planteamiento del Problema",
+            pregunta: "¿Qué significa 'plantear o describir el problema' de investigación?",
+            opciones: [
+                "Dar opiniones personales y quejas sobre una situación.",
+                "Contextualizar la situación actual, evidenciando los síntomas, causas y efectos del fenómeno a estudiar.",
+                "Definir las conclusiones a las que se llegará obligatoriamente.",
+                "Escribir un resumen ejecutivo de la bibliografía leída."
+            ],
+            correcta: 1
+        },
+        {
+            nivel: "Fase 2: Pregunta de Investigación",
+            pregunta: "Una adecuada formulación de la pregunta problema debe caracterizarse por:",
+            opciones: [
+                "Ser una pregunta abierta que delimite con claridad el espacio, el tiempo y las variables.",
+                "Poder responderse con un simple 'Sí' o 'No'.",
+                "Plantear juicios de moral o ética personal.",
+                "Carecer de población y contexto geográfico."
+            ],
+            correcta: 0
+        },
+        {
+            nivel: "Fase 3: Objetivos de Investigación",
+            pregunta: "¿Cuál es la diferencia principal entre el objetivo general y los objetivos específicos?",
+            opciones: [
+                "El general es opcional y los específicos son obligatorios.",
+                "El general responde al propósito global del estudio, mientras que los específicos detallan las etapas o pasos para alcanzarlo.",
+                "Los específicos son metas económicas y el general es académico.",
+                "No existe diferencia, ambos se redactan exactamente igual."
+            ],
+            correcta: 1
+        },
+        {
+            nivel: "Fase 4: Población Objeto",
+            pregunta: "En metodología de investigación, ¿cómo se define la población objeto de estudio (mercado objetivo)?",
+            opciones: [
+                "Al conjunto total de personas, empresas u objetos que poseen las características que se pretenden analizar.",
+                "A los evaluadores y jurados que calificarán el trabajo final.",
+                "A los competidores directos de una empresa en el mercado.",
+                "A cualquier ciudadano del país sin importar el enfoque del proyecto."
+            ],
+            correcta: 0
+        },
+        {
+            nivel: "Fase 5: Tamaño de la Muestra",
+            pregunta: "¿Por qué es necesario calcular estadísticamente el tamaño de la muestra en lugar de encuestar a toda la población?",
+            opciones: [
+                "Porque encuestar al 100% de la población suele ser ineficiente en tiempo y recursos, y una muestra representativa ofrece alta confiabilidad.",
+                "Porque las fórmulas matemáticas prohíben encuestar a más de 10 personas.",
+                "Para evitar por completo la tabulación de datos.",
+                "Porque los resultados de una muestra nunca coinciden con la realidad."
+            ],
+            correcta: 0
+        },
+        {
+            nivel: "Fase 6: Instrumento de Recolección",
+            pregunta: "¿Qué función cumple el cuestionario dentro de la investigación?",
+            opciones: [
+                "Servir como un formato decorativo para adornar la presentación del proyecto.",
+                "Actuar como el instrumento estructurado para recolectar datos directamente de la fuente de estudio.",
+                "Evaluar el comportamiento psicológico de los investigadores.",
+                "Sustituir por completo la revisión de objetivos."
+            ],
+            correcta: 1
+        },
+        {
+            nivel: "Fase 6: Diseño de Encuestas",
+            pregunta: "Al diseñar las preguntas de un cuestionario de investigación, se debe evitar:",
+            opciones: [
+                "Redactar preguntas claras y directas.",
+                "Incluir preguntas ambiguas, confusas o que induzcan una respuesta sesgada.",
+                "Ordenar lógicamente las temáticas de menor a mayor complejidad.",
+                "Alinear las preguntas con los objetivos específicos del proyecto."
+            ],
+            correcta: 1
+        },
+        {
+            nivel: "Evaluación Integral del Proyecto",
+            pregunta: "En la estructuración general de un proyecto, ¿qué relación guardan la pregunta problema y los objetivos?",
+            opciones: [
+                "Son totalmente independientes y no se relacionan entre sí.",
+                "Los objetivos deben dar respuesta directa y metódica a lo planteado en la pregunta de investigación.",
+                "La pregunta problema se redacta al final basándose únicamente en las conclusiones.",
+                "Los objetivos sirven únicamente para rellenar espacio en la introducción."
+            ],
+            correcta: 1
+        }
+    ];
+
+    let estudiante = { nombre: "", cedula: "" };
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let intentoActual = 1;
+    let usoClaveEnPregunta = false;
+
+    document.getElementById("btn-comenzar").addEventListener("click", () => {
+        const nombreInput = document.getElementById("nombre-input").value.trim();
+        const cedulaInput = document.getElementById("cedula-input").value.trim();
+
+        if (!nombreInput || !cedulaInput) {
+            alert("Por favor, completa tu nombre y cédula para continuar.");
+            return;
+        }
+
+        estudiante.nombre = nombreInput;
+        estudiante.cedula = cedulaInput;
+
+        document.getElementById("register-screen").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        
+        cargarPregunta();
+    });
+
+    function cargarPregunta() {
+        intentoActual = 1;
+        usoClaveEnPregunta = false;
+        
+        const q = preguntas[currentQuestionIndex];
+        document.getElementById("nivel-text").innerText = q.nivel;
+        document.getElementById("question-text").innerText = `${currentQuestionIndex + 1}) ${q.pregunta}`;
+        document.getElementById("current-q-display").innerText = currentQuestionIndex + 1;
+        document.getElementById("score-display").innerText = score;
+
+        const optionsContainer = document.getElementById("options-container");
+        optionsContainer.innerHTML = "";
+
+        q.opciones.forEach((opcion, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opcion;
+            btn.addEventListener("click", () => seleccionarRespuesta(index, btn));
+            optionsContainer.appendChild(btn);
+        });
+
+        const btnClave = document.getElementById("btn-clave");
+        btnClave.disabled = false;
+        btnClave.style.opacity = "1";
+    }
+
+    function seleccionarRespuesta(indexSeleccionado, btnElement) {
+        const q = preguntas[currentQuestionIndex];
+        const botones = document.querySelectorAll(".option-btn");
+
+        botones.forEach(b => b.disabled = true);
+
+        if (indexSeleccionado === q.correcta) {
+            btnElement.classList.add("correct");
+            
+            if (intentoActual === 1 && !usoClaveEnPregunta) {
+                score += 10;
+            } else if (usoClaveEnPregunta) {
+                score += 7;
+            } else {
+                score += 8;
+            }
+
+            document.getElementById("score-display").innerText = score;
+            setTimeout(siguientePregunta, 1500);
+        } else {
+            btnElement.classList.add("wrong");
+            
+            if (intentoActual === 1 && !usoClaveEnPregunta) {
+                intentoActual = 2;
+                setTimeout(() => {
+                    botones.forEach(b => {
+                        if (!b.classList.contains("wrong")) b.disabled = false;
+                    });
+                }, 1000);
+            } else {
+                botones[q.correcta].classList.add("correct");
+                setTimeout(siguientePregunta, 2000);
+            }
+        }
+    }
+
+    document.getElementById("btn-clave").addEventListener("click", () => {
+        usoClaveEnPregunta = true;
+        const q = preguntas[currentQuestionIndex];
+        const botones = document.querySelectorAll(".option-btn");
+
+        botones[q.correcta].style.borderColor = "#f59e0b";
+        const btnClave = document.getElementById("btn-clave");
+        btnClave.disabled = true;
+        btnClave.style.opacity = "0.5";
+        alert("¡Pista activada! Esta respuesta sumará 7 puntos si acertaras ahora.");
+    });
+
+    document.getElementById("btn-saltar").addEventListener("click", () => {
+        siguientePregunta();
+    });
+
+    function siguientePregunta() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < preguntas.length) {
+            cargarPregunta();
+        } else {
+            mostrarResultados();
+        }
+    }
+
+    function mostrarResultados() {
+        document.getElementById("game-screen").classList.add("hidden");
+        document.getElementById("results-screen").classList.remove("hidden");
+        
+        document.getElementById("result-student-info").innerText = `${estudiante.nombre} (Cédula: ${estudiante.cedula})`;
+        document.getElementById("final-score").innerText = `${score} pts`;
+    }
+
+    document.getElementById("btn-reiniciar").addEventListener("click", () => {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById("results-screen").classList.add("hidden");
+        document.getElementById("register-screen").classList.remove("hidden");
+        document.getElementById("nombre-input").value = "";
+        document.getElementById("cedula-input").value = "";
+    });
+</script>
+
+</body>
+</html>
